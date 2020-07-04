@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,7 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void showAddDialog() {
     textEditingController.text = "";
-    final _formKey = GlobalKey<FormState>();
+    bool validated = true;
     showDialog(
         context: context,
         builder: (context) {
@@ -38,23 +39,27 @@ class _MyHomePageState extends State<MyHomePage> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                TextFormField(
+                TextField(
                   controller: textEditingController,
                   autofocus: true,
                   onChanged: (value) {
                     toAdd = value;
                   },
-                  validator: (_value) {
-                    if (_value.isEmpty) {
-                      return 'This field cannot be empty';
-                    }
-                  },
+                  // decoration: InputDecoration(
+                  //     errorText:
+                  //         validated ? null : "This field cannot be empty"),
+                ),
+                Visibility(
+                  visible: !validated,
+                  child: Text("This field cannot be empty"),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: RaisedButton(
                     onPressed: () {
-                      if (_formKey.currentState.validate()) {
+                      if (textEditingController.text.isEmpty) {
+                        Navigator.pop(context);
+                      } else {
                         todoItems.add(toAdd);
                         Navigator.pop(context);
                         setState(() {});
@@ -132,8 +137,98 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class ContactUs extends StatelessWidget {
+  final String name = "CSI member";
+  final String phone = "8547886720";
+  final String email = "sonuisplaying@gmail.com";
+  final String imageurl =
+      "https://upload.wikimedia.org/wikipedia/en/e/e0/Csi_logo_india.jpg";
+  final String whatsapp = "8547886720";
+
+  _whatsappURL() async {
+    String whatsappURL = "https://wa.me/91" + whatsapp;
+    launch(whatsappURL);
+  }
+
+  _phoneURL() async {
+    String phoneURL = "tel:+91" + phone;
+    launch(phoneURL);
+  }
+
+  _smsURL() async {
+    String smsURL = "sms:+91" + phone;
+    launch(smsURL);
+  }
+
+  _emailURL() async {
+    String smsURL = "mailto:" + email;
+    launch(smsURL);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Contact Us"),
+        backgroundColor: Colors.green,
+      ),
+      body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(36.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(imageurl),
+                    radius: 80,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
+                name,
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 4, right: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Expanded(
+                      child: Text(
+                    phone,
+                    style: TextStyle(fontSize: 18),
+                  )),
+                  IconButton(
+                      icon: Icon(Icons.watch_later), onPressed: _whatsappURL),
+                  IconButton(icon: Icon(Icons.message), onPressed: _smsURL),
+                  IconButton(icon: Icon(Icons.phone), onPressed: _phoneURL),
+                ],
+              ),
+            ),
+            emailTile(email, _emailURL),
+          ]),
+    );
+  }
+
+  Widget emailTile(String email, Function emailFn) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Expanded(
+              child: Text(
+            email,
+            style: TextStyle(fontSize: 16),
+          )),
+          IconButton(icon: Icon(Icons.mail), onPressed: emailFn),
+        ],
+      ),
+    );
   }
 }
